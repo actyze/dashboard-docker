@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get Actyze Dashboard running on your local machine in under 5 minutes!
+Get Actyze running on your local machine in under 5 minutes!
 
 ---
 
@@ -12,165 +12,167 @@ Get Actyze Dashboard running on your local machine in under 5 minutes!
 
 ---
 
-## Step 1: Get the Code
+## Step 1: Get Actyze
 
-```bash
-git clone https://github.com/roman1887/dashboard-docker.git
+\`\`\`bash
+git clone https://github.com/actyze/dashboard-docker.git
 cd dashboard-docker
-```
+\`\`\`
 
 ---
 
-## Step 2: Configure Environment
+## Step 2: Configure
 
-```bash
-# Copy the example environment file
+\`\`\`bash
+# Copy the example configuration
 cp env.example .env
 
-# Edit the file with your API key
+# Edit with your credentials
 nano .env  # or use your preferred editor
-```
+\`\`\`
 
-**Minimum required changes in `.env`:**
+**Minimum required changes in \`.env\`:**
 
-```bash
+\`\`\`bash
 # Set your LLM API key (required for SQL generation)
 ANTHROPIC_API_KEY=your-api-key-here
 
 # Set a secure database password
 POSTGRES_PASSWORD=your-secure-password
-```
+\`\`\`
 
 **Get API Keys:**
 - **Anthropic Claude**: https://console.anthropic.com/settings/keys
 - **OpenAI**: https://platform.openai.com/api-keys
 - **Perplexity**: https://www.perplexity.ai/settings/api
-- **Groq**: https://console.groq.com/keys (free tier available!)
+- **Groq**: https://console.groq.com/keys (free tier available)
 
 ---
 
-## Step 3: Start Services
+## Step 3: Start Actyze
 
-```bash
+\`\`\`bash
+# Start all services
 ./start.sh
-```
+\`\`\`
 
-This will:
-- ✓ Build all Docker images (first time: ~5-10 minutes)
-- ✓ Start all services
-- ✓ Initialize the database with demo data
-- ✓ Wait for services to be healthy
+Wait 30-60 seconds for all services to become healthy.
 
 ---
 
-## Step 4: Access the Dashboard
+## Step 4: Access Actyze
 
-Once started, open your browser to:
+Open your browser:
 
-🌐 **http://localhost:3000**
+- **Dashboard**: http://localhost:3000
+- **API Documentation**: http://localhost:8000/docs
 
-**Login with:**
-- Username: `nexus_admin`
-- Password: `admin`
+**Login:**
+- Username: \`nexus_admin\`
+- Password: \`admin\`
+
+**Important**: Change the default password after first login!
 
 ---
 
 ## Step 5: Try Your First Query
 
-1. Navigate to the **"Query"** tab
-2. Enter a natural language query, for example:
-   ```
-   show me top 10 customers by total sales
-   ```
-3. Click **"Generate SQL"**
-4. Review the generated SQL
-5. Click **"Execute"** to see results
+1. **Login** to the dashboard
+2. **Go to Query Page**
+3. **Type a question**:
+   - "Show me all data available"
+   - "What are the top 10 items?"
+   - "List recent transactions"
+4. **Click "Generate SQL"** - Actyze will create the SQL for you
+5. **Click "Execute"** - See your results instantly
 
 ---
 
-## Useful Commands
+## What's Next?
 
-```bash
-# View logs
-docker-compose logs -f
+### Connect Your Database
 
-# Check service status
-docker-compose ps
+Add your own data source in \`.env\`:
 
-# Stop services (preserve data)
-./stop.sh
+\`\`\`bash
+# Trino connection (connects to your databases)
+TRINO_HOST=your-trino-server.com
+TRINO_PORT=443
+TRINO_USER=your-username
+TRINO_PASSWORD=your-password
+TRINO_SSL=true
+\`\`\`
 
-# Stop and clean everything
-./stop.sh --clean
+See [CONFIGURATION.md](CONFIGURATION.md) for all Trino connector options.
 
-# Run tests
-./test.sh
+### Upload CSV/Excel Files
 
-# Restart services
-./stop.sh && ./start.sh
-```
+No database? No problem!
+- Click "Upload Data" in the dashboard
+- Drop your CSV or Excel file
+- Start querying immediately
+
+### Explore Features
+
+- **Save Queries** - Bookmark frequently used queries
+- **Share Results** - Export as CSV or share with team
+- **Multiple Languages** - Ask questions in 50+ languages
+- **Smart Suggestions** - AI recommends relevant tables
 
 ---
 
-## Troubleshooting
+## Common Issues
 
 ### Port Already in Use
 
-```bash
-# Find what's using the port
+If port 3000 or 8000 is busy:
+
+\`\`\`bash
+# Check what's using the port
 lsof -i :3000
 
-# Kill the process or change ports in docker-compose.yml
-```
+# Stop the conflicting service or edit docker-compose.yml
+\`\`\`
 
 ### Services Won't Start
 
-```bash
-# Check Docker has enough memory (8GB recommended)
+Check Docker resources:
+
+\`\`\`bash
+# Ensure Docker has enough memory
 docker info | grep "Total Memory"
+# Should show 8GB+ available
 
-# Try clean restart
-./stop.sh --clean
-./start.sh
-```
+# Increase in Docker Desktop: 
+# Preferences → Resources → Memory → 8GB+
+\`\`\`
 
-### Authentication Fails
+### LLM API Error
 
-```bash
-# Check Nexus logs
-docker-compose logs nexus
+Verify your API key:
 
-# Verify database is running
-docker-compose ps postgres
-```
-
-### LLM API Errors
-
-```bash
-# Verify your API key in .env
+\`\`\`bash
+# Check configuration
 cat .env | grep API_KEY
 
-# Check Nexus logs for LLM errors
-docker-compose logs nexus | grep -i llm
-```
+# Test the API key (Anthropic example)
+curl https://api.anthropic.com/v1/messages \\
+  -H "x-api-key: YOUR_KEY" \\
+  -H "anthropic-version: 2023-06-01" \\
+  -H "content-type: application/json" \\
+  -d '{"model":"claude-sonnet-4-20250514","max_tokens":100,"messages":[{"role":"user","content":"test"}]}'
+\`\`\`
 
 ---
 
-## Next Steps
+## Need Help?
 
-- **[README.md](./README.md)** - Full documentation
-- **[LLM_PROVIDERS.md](./LLM_PROVIDERS.md)** - Configure different LLM providers
-- **[CONFIGURATION.md](./CONFIGURATION.md)** - Advanced configuration
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment options
-
----
-
-## Getting Help
-
-- **GitHub Issues**: https://github.com/roman1887/dashboard-docker/issues
-- **Documentation**: See the docs in this repository
-- **Discussions**: https://github.com/roman1887/dashboard-docker/discussions
+- **Full Documentation**: [README.md](README.md)
+- **Configuration Guide**: [CONFIGURATION.md](CONFIGURATION.md)
+- **LLM Setup**: [LLM_PROVIDERS.md](LLM_PROVIDERS.md)
+- **Support**: https://docs.actyze.io
+- **Issues**: https://github.com/actyze/dashboard-docker/issues
 
 ---
 
-**That's it! You're ready to start using Actyze Dashboard.** 🚀
+**Query your data in minutes. No SQL required.**

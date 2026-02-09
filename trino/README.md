@@ -1,224 +1,391 @@
-# Trino Docker Configuration
+# Trino Configuration Guide
 
-## 📋 Overview
+Configure Trino to connect to your databases. Trino is the query engine that connects Actyze to your data sources.
 
-Simple, template-based catalog configuration for Trino - **no dependencies, no complex scripts**.
+---
 
-- ✅ **Simple `.tpl` template files** - one per catalog
-- ✅ **Built-in `envsubst`** - automatic environment variable substitution
-- ✅ **No Python/YAML required** - just plain property files
-- ✅ **Easy to add/remove** catalogs
+## What is Trino?
 
-## 🚀 Quick Start
+Trino is a distributed SQL query engine that connects to multiple data sources. It allows Actyze to query:
+- Relational databases (PostgreSQL, MySQL, SQL Server)
+- Cloud warehouses (Snowflake, BigQuery, Redshift)
+- NoSQL databases (MongoDB, Cassandra)
+- Data lakes (Iceberg, Delta Lake, Hive)
 
-### Current Active Catalogs
+---
 
-These are **enabled by default**:
-- ✅ PostgreSQL (`postgres`)
-- ✅ Memory (`memory`) - for testing
-- ✅ TPCH (`tpch`) - sample data
+## Default Catalogs
 
-### Adding a New Catalog
+Actyze comes with these catalogs enabled by default:
 
-**Example: Enable MySQL**
+- **postgres** - Connects to local PostgreSQL database
+- **memory** - Temporary in-memory tables for testing
+- **tpch** - Sample dataset for testing queries
 
-1. **Copy example template**:
-```bash
-cp docker/trino/catalog-templates/examples/mysql.properties.tpl.example \
-   docker/trino/catalog-templates/mysql.properties.tpl
-```
+No additional configuration needed to get started!
 
-2. **Add environment variables** to `docker-compose.yml`:
-```yaml
-trino:
-  environment:
-    MYSQL_HOST: mysql-server
-    MYSQL_PORT: 3306
-    MYSQL_DB: mydb
-    MYSQL_USER: myuser
-    MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-```
+---
 
-3. **Rebuild and restart**:
-```bash
-docker-compose -f docker/docker-compose.yml build trino
-docker-compose -f docker/docker-compose.yml up -d trino
-```
+## Adding Your Data Sources
 
-That's it! ✨
+### Step 1: Choose Your Connector
 
-## 📂 File Structure
+Trino supports 50+ data sources. Common examples:
 
-```
-docker/trino/
-├── catalog-templates/
-│   ├── postgres.properties.tpl     # ← Active (PostgreSQL)
-│   ├── memory.properties.tpl       # ← Active (in-memory)
-│   ├── tpch.properties.tpl         # ← Active (sample data)
-│   ├── README.md                   # Documentation
-│   └── examples/                   # ← Example templates
+**Relational Databases:**
+- PostgreSQL
+- MySQL
+- SQL Server
+- Oracle
+- MariaDB
+
+**Cloud Data Warehouses:**
+- Snowflake
+- Google BigQuery
+- Amazon Redshift
+- Databricks
+
+**NoSQL:**
+- MongoDB
+- Cassandra
+- Elasticsearch
+
+**Data Lakes:**
+- Apache Iceberg
+- Delta Lake
+- Apache Hudi
+- Hive
+
+### Step 2: Create Catalog Template
+
+Copy the example template for your data source:
+
+\`\`\`bash
+# Example: Add MySQL
+cp trino/catalog-templates/examples/mysql.properties.tpl.example \\
+   trino/catalog-templates/mysql.properties.tpl
+\`\`\`
+
+### Step 3: Configure in \`.env\`
+
+Add connection details to your \`.env\` file:
+
+**PostgreSQL Example:**
+\`\`\`bash
+# PostgreSQL catalog name: production_db
+POSTGRES_PRODUCTION_HOST=db.yourcompany.com
+POSTGRES_PRODUCTION_PORT=5432
+POSTGRES_PRODUCTION_DB=production
+POSTGRES_PRODUCTION_USER=analytics_user
+POSTGRES_PRODUCTION_PASSWORD=your-password
+\`\`\`
+
+**MySQL Example:**
+\`\`\`bash
+# MySQL catalog name: sales_db
+MYSQL_HOST=mysql.yourcompany.com
+MYSQL_PORT=3306
+MYSQL_DB=sales
+MYSQL_USER=analytics_user
+MYSQL_PASSWORD=your-password
+\`\`\`
+
+**Snowflake Example:**
+\`\`\`bash
+# Snowflake catalog name: warehouse
+SNOWFLAKE_ACCOUNT=your-account.snowflakecomputing.com
+SNOWFLAKE_USER=analytics_user
+SNOWFLAKE_PASSWORD=your-password
+SNOWFLAKE_DATABASE=ANALYTICS
+SNOWFLAKE_WAREHOUSE=COMPUTE_WH
+SNOWFLAKE_ROLE=ANALYTICS_ROLE
+\`\`\`
+
+**MongoDB Example:**
+\`\`\`bash
+# MongoDB catalog name: events
+MONGODB_CONNECTION_URL=mongodb://mongo.yourcompany.com:27017
+MONGODB_USER=analytics_user
+MONGODB_PASSWORD=your-password
+MONGODB_DATABASE=events
+\`\`\`
+
+### Step 4: Restart Trino
+
+\`\`\`bash
+docker-compose restart trino
+\`\`\`
+
+---
+
+## Catalog Templates
+
+### File Structure
+
+\`\`\`
+trino/
+├── catalog-templates/          # Active catalogs
+│   ├── postgres.properties.tpl # Local PostgreSQL
+│   ├── memory.properties.tpl   # Memory catalog
+│   ├── tpch.properties.tpl     # Sample data
+│   └── examples/               # Template examples
 │       ├── mysql.properties.tpl.example
 │       ├── snowflake.properties.tpl.example
-│       └── mongodb.properties.tpl.example
-├── docker-entrypoint.sh            # Startup script (uses envsubst)
-├── Dockerfile                      # Builds Trino image
-├── config.properties               # Trino server config
-└── README.md                       # This file
-```
+│       ├── mongodb.properties.tpl.example
+│       └── ... (50+ connectors)
+\`\`\`
 
-## 🔄 How It Works
+### How It Works
 
-1. **Startup**: `docker-entrypoint.sh` runs
-2. **Scan**: Finds all `*.tpl` files in `catalog-templates/`
-3. **Substitute**: Uses `envsubst` to replace `${VAR}` with environment values
-4. **Generate**: Creates `.properties` files in `/etc/trino/catalog/`
-5. **Start**: Trino starts with all catalogs configured
+1. **Templates** (\`.tpl\` files) use environment variable placeholders
+2. **Docker** automatically substitutes variables from \`.env\`
+3. **Trino** loads the final catalog configurations on startup
 
-```
-postgres.properties.tpl
-     ↓
-envsubst (replaces ${POSTGRES_HOST}, etc.)
-     ↓
-/etc/trino/catalog/postgres.properties
-     ↓
-Trino starts with postgres catalog available
-```
+Example template:
+\`\`\`properties
+connector.name=postgresql
+connection-url=jdbc:postgresql://\${POSTGRES_HOST}:\${POSTGRES_PORT}/\${POSTGRES_DB}
+connection-user=\${POSTGRES_USER}
+connection-password=\${POSTGRES_PASSWORD}
+\`\`\`
 
-## 🔌 Available Connectors
+---
 
-### Currently Included Examples
+## Complete Configuration Examples
 
-| Connector | Example Template | Use Case |
-|-----------|-----------------|----------|
-| MySQL | `mysql.properties.tpl.example` | Relational database |
-| Snowflake | `snowflake.properties.tpl.example` | Cloud data warehouse |
-| MongoDB | `mongodb.properties.tpl.example` | NoSQL database |
+### PostgreSQL
 
-### Other Popular Connectors
+**1. Create template:**
+\`\`\`bash
+cat > trino/catalog-templates/production.properties.tpl << 'EOF'
+connector.name=postgresql
+connection-url=jdbc:postgresql://\${POSTGRES_PRODUCTION_HOST}:\${POSTGRES_PRODUCTION_PORT}/\${POSTGRES_PRODUCTION_DB}
+connection-user=\${POSTGRES_PRODUCTION_USER}
+connection-password=\${POSTGRES_PRODUCTION_PASSWORD}
+EOF
+\`\`\`
 
-Create your own `.tpl` file for any of these:
+**2. Add to \`.env\`:**
+\`\`\`bash
+POSTGRES_PRODUCTION_HOST=db.yourcompany.com
+POSTGRES_PRODUCTION_PORT=5432
+POSTGRES_PRODUCTION_DB=production
+POSTGRES_PRODUCTION_USER=analytics
+POSTGRES_PRODUCTION_PASSWORD=secure-password
+\`\`\`
 
-| Category | Connectors |
-|----------|------------|
-| **Relational** | Oracle, SQL Server, MariaDB, Redshift |
-| **NoSQL** | Cassandra, Redis, Elasticsearch |
-| **Cloud** | BigQuery, Redshift, Synapse, Athena |
-| **Data Lakes** | Iceberg, Delta Lake, Hudi |
-| **Object Storage** | S3 (Hive), Azure Blob, GCS |
+**3. Restart:**
+\`\`\`bash
+docker-compose restart trino
+\`\`\`
 
-**Full list**: https://trino.io/docs/current/connector.html
+**4. Query:**
+\`\`\`sql
+SELECT * FROM production.public.customers LIMIT 10;
+\`\`\`
 
-## 📝 Creating Custom Templates
+### MySQL
 
-### Example: Add Oracle
+**1. Copy example:**
+\`\`\`bash
+cp trino/catalog-templates/examples/mysql.properties.tpl.example \\
+   trino/catalog-templates/mysql.properties.tpl
+\`\`\`
 
-1. **Create template** `catalog-templates/oracle.properties.tpl`:
-```properties
-connector.name=oracle
-connection-url=jdbc:oracle:thin:@${ORACLE_HOST}:${ORACLE_PORT}:${ORACLE_SID}
-connection-user=${ORACLE_USER}
-connection-password=${ORACLE_PASSWORD}
-```
+**2. Add to \`.env\`:**
+\`\`\`bash
+MYSQL_HOST=mysql.yourcompany.com
+MYSQL_PORT=3306
+MYSQL_DB=sales
+MYSQL_USER=analytics
+MYSQL_PASSWORD=secure-password
+\`\`\`
 
-2. **Add environment variables**:
-```yaml
-trino:
-  environment:
-    ORACLE_HOST: oracle-server
-    ORACLE_PORT: 1521
-    ORACLE_SID: ORCL
-    ORACLE_USER: system
-    ORACLE_PASSWORD: ${ORACLE_PASSWORD}
-```
+**3. Restart:**
+\`\`\`bash
+docker-compose restart trino
+\`\`\`
 
-3. **Rebuild and restart**
+**4. Query:**
+\`\`\`sql
+SELECT * FROM mysql.sales.orders LIMIT 10;
+\`\`\`
 
-## 🛠️ Troubleshooting
+### Snowflake
 
-### Check Generated Catalogs
+**1. Copy example:**
+\`\`\`bash
+cp trino/catalog-templates/examples/snowflake.properties.tpl.example \\
+   trino/catalog-templates/snowflake.properties.tpl
+\`\`\`
 
-```bash
-docker exec dashboard-trino ls -la /etc/trino/catalog/
-```
+**2. Add to \`.env\`:**
+\`\`\`bash
+SNOWFLAKE_ACCOUNT=your-account
+SNOWFLAKE_USER=analytics_user
+SNOWFLAKE_PASSWORD=secure-password
+SNOWFLAKE_DATABASE=ANALYTICS
+SNOWFLAKE_WAREHOUSE=COMPUTE_WH
+SNOWFLAKE_ROLE=ANALYTICS_ROLE
+\`\`\`
 
-### View Generated Properties
+**3. Restart:**
+\`\`\`bash
+docker-compose restart trino
+\`\`\`
 
-```bash
-docker exec dashboard-trino cat /etc/trino/catalog/postgres.properties
-```
+**4. Query:**
+\`\`\`sql
+SELECT * FROM snowflake.analytics.sales LIMIT 10;
+\`\`\`
 
-### Check Startup Logs
+### MongoDB
 
-```bash
-docker logs dashboard-trino | grep -A 10 "Catalog Generation"
-```
+**1. Copy example:**
+\`\`\`bash
+cp trino/catalog-templates/examples/mongodb.properties.tpl.example \\
+   trino/catalog-templates/mongodb.properties.tpl
+\`\`\`
 
-### Verify Catalogs in Trino
+**2. Add to \`.env\`:**
+\`\`\`bash
+MONGODB_CONNECTION_URL=mongodb://mongo.yourcompany.com:27017
+MONGODB_USER=analytics
+MONGODB_PASSWORD=secure-password
+MONGODB_DATABASE=events
+\`\`\`
 
-```bash
+**3. Restart:**
+\`\`\`bash
+docker-compose restart trino
+\`\`\`
+
+**4. Query:**
+\`\`\`sql
+SELECT * FROM mongodb.events.user_events LIMIT 10;
+\`\`\`
+
+---
+
+## Testing Your Connection
+
+### Verify Catalog is Loaded
+
+\`\`\`bash
+# List all catalogs
 docker exec dashboard-trino trino --execute "SHOW CATALOGS;"
-```
+\`\`\`
 
-### Test Query
+### List Schemas
 
-```bash
-docker exec dashboard-trino trino --execute "SELECT COUNT(*) FROM postgres.demo_ecommerce.customers;"
-```
+\`\`\`bash
+# Replace 'production' with your catalog name
+docker exec dashboard-trino trino --execute "SHOW SCHEMAS IN production;"
+\`\`\`
 
-## 🔒 Security Best Practices
+### List Tables
 
-1. ✅ **Never hardcode passwords** - use environment variables
-2. ✅ **Use `.env` file** - for local secrets (git-ignored)
-3. ✅ **Use secrets management** - for production (Vault, AWS Secrets Manager)
-4. ✅ **Limit permissions** - use read-only database users when possible
-5. ✅ **Rotate credentials** - regularly update passwords
+\`\`\`bash
+# Replace catalog and schema
+docker exec dashboard-trino trino --execute "SHOW TABLES IN production.public;"
+\`\`\`
 
-## 🆚 Comparison with Helm
+### Run Test Query
 
-Both Docker and Helm now use similar approaches:
+\`\`\`bash
+# Test query
+docker exec dashboard-trino trino --execute "SELECT COUNT(*) FROM production.public.customers;"
+\`\`\`
 
-| Feature | Docker | Helm |
-|---------|--------|------|
-| Config Files | `.tpl` templates | YAML in `values.yaml` |
-| Syntax | Properties | YAML |
-| Env Vars | `${VAR}` | `${ENV:VAR}` |
-| Tool | `envsubst` | Kubernetes ConfigMap |
-| Add Catalog | Add `.tpl` file | Edit `values.yaml` |
+---
 
-## 📚 Additional Resources
+## Troubleshooting
 
-- [Trino Connectors Documentation](https://trino.io/docs/current/connector.html)
-- [Trino Configuration Reference](https://trino.io/docs/current/admin/properties.html)
-- [Docker Compose Documentation](https://docs.docker.com/compose/)
-- [envsubst Manual](https://www.gnu.org/software/gettext/manual/html_node/envsubst-Invocation.html)
+### Catalog Not Showing
 
-## 💡 Tips
+**Check configuration:**
+\`\`\`bash
+# View generated catalog files
+docker exec dashboard-trino ls -la /etc/trino/catalog/
 
-### Tip 1: Disable a Catalog Temporarily
+# View catalog content
+docker exec dashboard-trino cat /etc/trino/catalog/your-catalog.properties
+\`\`\`
 
-Rename the template file:
-```bash
-mv catalog-templates/mysql.properties.tpl catalog-templates/mysql.properties.tpl.disabled
-```
+**Check Trino logs:**
+\`\`\`bash
+docker-compose logs trino
+\`\`\`
 
-### Tip 2: Multiple Environments
+### Connection Failed
 
-Use different `.env` files:
-```bash
-# Development
-docker-compose --env-file .env.dev up
+**Verify credentials:**
+\`\`\`bash
+# Check environment variables
+cat .env | grep YOUR_CATALOG
+\`\`\`
 
-# Staging
-docker-compose --env-file .env.staging up
-```
+**Test network connectivity:**
+\`\`\`bash
+# Test from Trino container
+docker exec dashboard-trino ping your-database-host
+\`\`\`
 
-### Tip 3: Test Template Without Rebuild
+### Authentication Errors
 
-```bash
-# Export env vars
-export POSTGRES_HOST=localhost
-export POSTGRES_PORT=5432
+**PostgreSQL:** Verify user has access from Trino's IP
+**MySQL:** Check \`GRANT\` permissions for remote access
+**Snowflake:** Verify role has warehouse access
+**MongoDB:** Check user has \`read\` role on database
 
-# Test substitution
-envsubst < catalog-templates/postgres.properties.tpl
-```
+---
+
+## Available Connectors
+
+Trino supports 50+ data sources. See the \`trino/catalog-templates/examples/\` directory for templates:
+
+**Relational:**
+- PostgreSQL, MySQL, SQL Server, Oracle, MariaDB
+
+**Cloud Warehouses:**
+- Snowflake, BigQuery, Redshift, Databricks, Synapse
+
+**NoSQL:**
+- MongoDB, Cassandra, Elasticsearch, Redis
+
+**Data Lakes:**
+- Iceberg, Delta Lake, Hudi, Hive
+
+**SaaS:**
+- Salesforce, Google Sheets, Airtable
+
+**Object Storage:**
+- S3, Google Cloud Storage, Azure Blob Storage
+
+**And many more...**
+
+---
+
+## Best Practices
+
+1. **Use read-only users** - Create dedicated analytics users with read-only access
+2. **Secure passwords** - Never commit \`.env\` with credentials
+3. **Test connectivity** - Verify connection before adding to Actyze
+4. **Monitor performance** - Check query performance in Trino logs
+5. **Use connection pooling** - Enabled by default in Trino connectors
+
+---
+
+## Support
+
+**Documentation:**
+- Complete Connector List: https://trino.io/docs/current/connector.html
+- Actyze Documentation: https://docs.actyze.io
+- Configuration Guide: [../CONFIGURATION.md](../CONFIGURATION.md)
+
+**Support:**
+- GitHub Issues: https://github.com/actyze/dashboard-docker/issues
+
+---
+
+**Connect Actyze to any data source. Query everything in one place.**

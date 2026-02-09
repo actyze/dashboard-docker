@@ -1,350 +1,487 @@
-# Dashboard Docker Deployment Guide
+# Actyze Local Deployment Guide
 
-> **Note:** All commands in this guide should be executed from the project root directory unless otherwise specified.
+Complete guide for deploying Actyze on your local machine using Docker Compose.
 
-This guide explains how to deploy the complete Dashboard application stack using Docker Compose, providing an alternative to Kubernetes/Helm deployment for local development and testing.
+---
 
-## 🏗️ Architecture Overview
+## Architecture
 
-The Dashboard application consists of multiple services that can be deployed using Docker Compose:
+Actyze runs as five containerized services:
 
-### Core Services
-- **PostgreSQL Database**: Stores application data and demo datasets
-- **FastAPI Nexus Service**: Main backend API with LLM integration
-- **React Frontend**: User interface with nginx proxy
-- **FAISS Schema Service**: Provides intelligent schema recommendations
+\`\`\`
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Frontend      │────▶│   Nexus API      │────▶│   PostgreSQL    │
+│   (React:3000)  │     │   (FastAPI:8000) │     │   (5432)        │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+                               │
+                               │
+                      ┌────────┴────────┐
+                      ▼                 ▼
+            ┌──────────────────┐  ┌──────────────────┐
+            │  Schema Service  │  │  Trino Engine    │
+            │  (FAISS:8001)    │  │  (8081)          │
+            └──────────────────┘  └──────────────────┘
+                      │
+                      ▼
+            ┌──────────────────┐
+            │  Your LLM        │
+            │  (Claude/GPT-4)  │
+            └──────────────────┘
+\`\`\`
 
-### External Integrations
-- **External Trino**: PepsiCo Trino cluster for real data queries
-- **External LLM**: Perplexity API for SQL generation
+**Services:**
+- **Frontend** (port 3000): Web interface
+- **Nexus** (port 8000): API and AI orchestration
+- **Schema Service** (port 8001): Intelligent recommendations
+- **PostgreSQL** (port 5432): Application database
+- **Trino** (port 8081): Connects to your data
 
-## 📋 Prerequisites
+All images are automatically pulled from Docker Hub - no building required.
 
-- Docker Engine 20.10+
-- Docker Compose 2.0+ (or docker-compose 1.29+)
+---
+
+## Prerequisites
+
+**System Requirements:**
+- Docker Desktop 20.10+ (or Docker Engine 20.10+)
+- Docker Compose 2.0+
 - 8GB+ RAM available for Docker
-- Internet connection for external services
+- 10GB+ disk space
+- Internet connection
 
-## 🚀 Quick Start
+**Required Credentials:**
+- LLM API key (Anthropic, OpenAI, Perplexity, or Groq)
+- Database passwords (optional if using external databases)
 
-### 1. Clone and Setup
+**Verify Docker:**
+\`\`\`bash
+docker --version  # Should be 20.10.0+
+docker-compose --version  # Should be 2.0.0+
+docker info | grep "Total Memory"  # Should show 8GB+
+\`\`\`
 
-```bash
-git clone <repository-url>
-cd dashboard
-```
+---
 
-### 2. Configure Environment
+## Installation
 
-```bash
-# Copy environment template
-cp docker/docker.env.example .env.docker
+### Step 1: Get Actyze
 
-# Edit with your API keys and credentials
-nano .env.docker
-```
+\`\`\`bash
+git clone https://github.com/actyze/dashboard-docker.git
+cd dashboard-docker
+\`\`\`
 
-### 3. Start Services
+### Step 2: Configure Environment
 
-```bash
-# For local development (PostgreSQL + Nexus + Frontend)
-./scripts/docker-start.sh local -d
+\`\`\`bash
+# Copy example configuration
+cp env.example .env
 
-# For full environment (includes Schema Service + External Trino)
-./scripts/docker-start.sh full -d
-```
+# Edit with your settings
+nano .env
+\`\`\`
 
-### 4. Access Application
+**Required Configuration:**
 
-- **Frontend**: http://localhost:3000
-- **Nexus API**: http://localhost:8002
-- **Schema Service**: http://localhost:8001 (full environment only)
-- **PostgreSQL**: localhost:5432
+\`\`\`bash
+# LLM API Key (REQUIRED)
+ANTHROPIC_API_KEY=your-api-key-here
 
-## 🔧 Deployment Options
+# LLM Provider Settings
+EXTERNAL_LLM_PROVIDER=anthropic
+EXTERNAL_LLM_MODEL=claude-sonnet-4-20250514
 
-### Local Development Environment
+# Database Password (REQUIRED)
+POSTGRES_PASSWORD=choose-a-secure-password
+\`\`\`
 
-**File**: `docker/docker-compose.local.yml`
+See [CONFIGURATION.md](CONFIGURATION.md) for complete configuration options.
 
-**Services**:
-- PostgreSQL with demo data
-- FastAPI Nexus (using PostgreSQL as mock Trino)
-- React Frontend
+### Step 3: Start Services
 
-**Use Case**: Local development, testing, demos without external dependencies
+\`\`\`bash
+# Start all services
+./start.sh
+\`\`\`
 
-```bash
-./scripts/docker-start.sh local -d
-```
+The script will:
+1. Pull latest Docker images from Docker Hub
+2. Start all services
+3. Wait for health checks
+4. Display access URLs
 
-### Full Production-Like Environment
+**Expected output:**
+\`\`\`
+Starting Actyze Dashboard...
+Creating network...
+Starting PostgreSQL...
+Starting Trino...
+Starting Schema Service...
+Starting Nexus API...
+Starting Frontend...
 
-**File**: `docker/docker-compose.full.yml`
+All services are healthy!
 
-**Services**:
-- PostgreSQL with demo data
-- FAISS Schema Service
-- FastAPI Nexus (with external Trino integration)
-- React Frontend
+Access Actyze at:
+  Dashboard: http://localhost:3000
+  API Docs:  http://localhost:8000/docs
+\`\`\`
 
-**Use Case**: Testing with real external services, staging environment
+---
 
-```bash
-./scripts/docker-start.sh full -d
-```
+## Deployment Options
 
-## ⚙️ Configuration
+Actyze supports different deployment profiles based on your needs:
 
-### Environment Variables
+### Option 1: Local (Default)
 
-Create `.env.docker` from `docker/docker.env.example`:
+All services run locally - best for evaluation and testing.
 
-```bash
-# External LLM Configuration
-PERPLEXITY_API_KEY=your-api-key-here
+\`\`\`bash
+./start.sh
+\`\`\`
 
-# Database Configuration
-POSTGRES_PASSWORD=dashboard_password
-POSTGRES_USER=dashboard_user
-POSTGRES_DB=dashboard
+**Includes:**
+- Local PostgreSQL database
+- Local Trino query engine
+- All Actyze services
 
-# Trino Configuration (External PepsiCo Trino)
-TRINO_HOST=b2b-trinodb-preprod.dps.gw01.aks01.scus.preprod.azure.intra.pepsico.com
+**Use when:** Evaluating Actyze or testing locally
+
+### Option 2: External Databases
+
+Connect to your existing databases - skip local PostgreSQL and Trino.
+
+**Step 1:** Configure external connections in \`.env\`:
+
+\`\`\`bash
+# External PostgreSQL
+POSTGRES_HOST=your-db-server.com
+POSTGRES_PORT=5432
+POSTGRES_DB=your-database
+POSTGRES_USER=your-username
+POSTGRES_PASSWORD=your-password
+
+# External Trino
+TRINO_HOST=your-trino-server.com
 TRINO_PORT=443
-TRINO_USER=pepconndb01
-TRINO_PASSWORD=NgN6w@k8mKM1
+TRINO_USER=your-username
+TRINO_PASSWORD=your-password
+TRINO_SSL=true
+\`\`\`
 
-# Service Configuration
-LOG_LEVEL=INFO
-DEBUG=true
-```
+**Step 2:** Start with external profile:
 
-### Service Ports
+\`\`\`bash
+./start.sh --profile external
+\`\`\`
 
-| Service | Port | Description |
-|---------|------|-------------|
-| Frontend | 3000 | React application with nginx |
-| Nexus API | 8002 | FastAPI backend service |
-| Schema Service | 8001 | FAISS schema recommendations |
-| PostgreSQL | 5432 | Database server |
+**Use when:** Connecting Actyze to your existing infrastructure
 
-### Volume Mounts
+### Option 3: Mixed
 
-- `postgres_data`: PostgreSQL data persistence
-- `schema_models`: FAISS model cache
-- `./helm/dashboard/sql`: Database initialization scripts
+Local PostgreSQL + External Trino (or vice versa).
 
-## 🛠️ Management Commands
+**Configure in \`.env\`:**
+\`\`\`bash
+# Use local PostgreSQL (default)
+POSTGRES_HOST=postgres
 
-### Using the Management Script
+# Use external Trino
+TRINO_HOST=your-trino-server.com
+TRINO_PORT=443
+TRINO_SSL=true
+\`\`\`
 
-```bash
-# Start local development environment
-./scripts/docker-start.sh local -d
+**Start normally:**
+\`\`\`bash
+./start.sh
+\`\`\`
 
-# Start full environment
-./scripts/docker-start.sh full -d
+**Use when:** Testing queries against production data
 
-# Stop all services
-./scripts/docker-start.sh stop
+---
 
-# Restart services
-./scripts/docker-start.sh restart
+## Accessing Actyze
 
-# View logs
-./scripts/docker-start.sh logs -f
+### Web Dashboard
 
-# Check status
-./scripts/docker-start.sh status
+Open your browser:
+\`\`\`
+http://localhost:3000
+\`\`\`
 
-# Build images
-./scripts/docker-start.sh build
+**Login:**
+- Username: \`nexus_admin\`
+- Password: \`admin\`
 
-# Clean up everything
-./scripts/docker-start.sh clean
-```
+**Change the default password immediately after first login.**
 
-### Manual Docker Compose Commands
+### API Documentation
 
-```bash
-# Start local environment
-docker-compose -f docker/docker-compose.local.yml up -d
-
-# Start full environment
-docker-compose -f docker/docker-compose.full.yml --env-file .env.docker up -d
-
-# View logs
-docker-compose -f docker/docker-compose.local.yml logs -f
-
-# Stop services
-docker-compose -f docker/docker-compose.local.yml down
-
-# Rebuild images
-docker-compose -f docker/docker-compose.full.yml build --no-cache
-```
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-#### 1. Port Conflicts
-```bash
-# Check what's using the ports
-lsof -i :3000
-lsof -i :8002
-lsof -i :5432
-
-# Stop conflicting services or change ports in docker/docker-compose files
-```
-
-#### 2. Memory Issues
-```bash
-# Check Docker memory allocation
-docker system df
-docker stats
-
-# Increase Docker Desktop memory limit to 8GB+
-```
-
-#### 3. Database Connection Issues
-```bash
-# Check PostgreSQL logs
-docker logs dashboard-postgres-local
-
-# Verify database initialization
-docker exec -it dashboard-postgres-local psql -U dashboard_user -d dashboard -c "\dt"
-```
-
-#### 4. External API Issues
-```bash
-# Check Nexus service logs
-docker logs dashboard-nexus-local
-
-# Verify environment variables
-docker exec dashboard-nexus-local env | grep EXTERNAL_LLM
-```
+Interactive API documentation:
+\`\`\`
+http://localhost:8000/docs
+\`\`\`
 
 ### Health Checks
 
-All services include health checks. Check status:
+Verify all services are running:
 
-```bash
-# View all container health status
-docker ps --format "table {{.Names}}\t{{.Status}}"
+\`\`\`bash
+# Frontend
+curl http://localhost:3000
 
-# Check specific service health
-docker inspect dashboard-nexus-local | grep -A 10 Health
-```
+# Nexus API
+curl http://localhost:8000/health
 
-### Log Analysis
+# Schema Service
+curl http://localhost:8001/health
 
-```bash
-# Follow all logs
-./scripts/docker-start.sh logs -f
+# PostgreSQL
+docker exec dashboard-postgres pg_isready
+\`\`\`
+
+---
+
+## Managing Services
+
+### View Service Status
+
+\`\`\`bash
+# Check all services
+docker-compose ps
+
+# View logs
+docker-compose logs -f
 
 # View specific service logs
-docker logs dashboard-nexus-local -f
-docker logs dashboard-frontend-local -f
-docker logs dashboard-postgres-local -f
-```
+docker-compose logs -f nexus
+docker-compose logs -f frontend
+\`\`\`
 
-## 🔄 Development Workflow
+### Stop Services
 
-### 1. Code Changes
+\`\`\`bash
+# Stop (preserves data)
+./stop.sh
 
-```bash
-# After making code changes, rebuild affected services
-docker-compose -f docker/docker-compose.local.yml build nexus
-docker-compose -f docker/docker-compose.local.yml up -d nexus
+# Stop and remove all data
+./stop.sh --clean
+\`\`\`
 
-# Or rebuild everything
-./scripts/docker-start.sh build
-./scripts/docker-start.sh restart
-```
+### Restart Services
 
-### 2. Database Changes
+\`\`\`bash
+# Restart everything
+./stop.sh && ./start.sh
 
-```bash
-# Apply new SQL scripts
-docker-compose -f docker/docker-compose.local.yml down
-docker volume rm dashboard_postgres_local_data
-./scripts/docker-start.sh local -d
-```
+# Restart specific service
+docker-compose restart nexus
+\`\`\`
 
-### 3. Frontend Changes
+### Update to Latest Version
 
-```bash
-# Rebuild frontend after changes
-docker-compose -f docker/docker-compose.local.yml build frontend
-docker-compose -f docker/docker-compose.local.yml up -d frontend
-```
+\`\`\`bash
+# Stop services
+./stop.sh
 
-## 🚀 Production Considerations
+# Pull latest images
+docker-compose pull
 
-### Security
-- Use proper secrets management instead of environment files
-- Enable SSL/TLS for external communications
-- Implement proper authentication and authorization
-- Regular security updates for base images
+# Start with updated images
+./start.sh
+\`\`\`
 
-### Performance
-- Use production-optimized Docker images
-- Implement proper resource limits
-- Set up monitoring and logging
-- Use external managed databases for production
+---
 
-### Scalability
-- Consider using Docker Swarm or Kubernetes for production
-- Implement load balancing for multiple instances
-- Use external caching solutions (Redis)
-- Separate read/write database instances
+## Performance Tuning
 
-## 📊 Monitoring
+### Resource Allocation
 
-### Basic Monitoring
+Adjust Docker resource limits:
 
-```bash
-# Resource usage
-docker stats
+**Docker Desktop:**
+1. Open Docker Desktop
+2. Go to Preferences → Resources
+3. Increase Memory to 8GB+ (16GB recommended)
+4. Increase CPUs to 4+ (8 recommended)
+5. Restart Docker
 
-# Service health
-./scripts/docker-start.sh status
+### Enable Query Caching
 
-# Application logs
-./scripts/docker-start.sh logs -f
-```
+In \`.env\`:
+\`\`\`bash
+CACHE_ENABLED=true
+CACHE_QUERY_MAX_SIZE=100
+CACHE_QUERY_TTL=1800  # 30 minutes
+\`\`\`
 
-### Advanced Monitoring
+### Choose Faster LLM
 
-For production deployments, consider:
-- Prometheus + Grafana for metrics
-- ELK Stack for log aggregation
-- Health check endpoints monitoring
-- Performance monitoring tools
+For faster responses, use Groq (free):
+\`\`\`bash
+EXTERNAL_LLM_PROVIDER=groq
+EXTERNAL_LLM_MODEL=mixtral-8x7b-32768
+\`\`\`
 
-## 🔗 Integration with Helm
+---
 
-This Docker Compose setup mirrors the Helm deployment configuration:
+## Troubleshooting
 
-- **Same environment variables**: Consistent configuration across deployments
-- **Same service architecture**: Identical service interactions
-- **Same external integrations**: Uses same external APIs and services
-- **Same database schemas**: Identical data structures and initialization
+### Services Won't Start
 
-You can develop locally with Docker and deploy to production with Helm seamlessly.
+**Check Docker is running:**
+\`\`\`bash
+docker info
+\`\`\`
 
-## 📝 Next Steps
+**Check available resources:**
+\`\`\`bash
+docker info | grep "Total Memory"
+docker info | grep "CPUs"
+\`\`\`
 
-1. **Local Development**: Use `docker-compose.local.yml` for daily development
-2. **Integration Testing**: Use `docker-compose.full.yml` to test with external services
-3. **Production Deployment**: Migrate to Helm charts for Kubernetes deployment
-4. **CI/CD Integration**: Incorporate Docker builds into your CI/CD pipeline
+**Check logs:**
+\`\`\`bash
+docker-compose logs
+\`\`\`
 
-## 🆘 Support
+### Port Conflicts
 
-For issues and questions:
-1. Check the troubleshooting section above
-2. Review service logs using the provided commands
-3. Verify environment configuration
-4. Check Docker and system resources
+**Error:** "port is already allocated"
+
+**Solution:**
+\`\`\`bash
+# Find what's using the port
+lsof -i :3000
+lsof -i :8000
+
+# Stop the conflicting service or change ports in docker-compose.yml
+\`\`\`
+
+### Database Connection Failed
+
+**Check PostgreSQL is running:**
+\`\`\`bash
+docker-compose ps postgres
+docker-compose logs postgres
+\`\`\`
+
+**Test connection:**
+\`\`\`bash
+docker exec -it dashboard-postgres psql -U nexus_service -d dashboard
+\`\`\`
+
+### LLM API Errors
+
+**Verify API key:**
+\`\`\`bash
+cat .env | grep API_KEY
+\`\`\`
+
+**Test API key manually:**
+\`\`\`bash
+# For Anthropic
+curl https://api.anthropic.com/v1/messages \\
+  -H "x-api-key: YOUR_KEY" \\
+  -H "anthropic-version: 2023-06-01" \\
+  -H "content-type: application/json" \\
+  -d '{"model":"claude-sonnet-4-20250514","max_tokens":100,"messages":[{"role":"user","content":"test"}]}'
+\`\`\`
+
+### Slow Performance
+
+**Enable caching:**
+\`\`\`bash
+CACHE_ENABLED=true
+\`\`\`
+
+**Increase Docker resources:**
+- Memory: 8GB → 16GB
+- CPUs: 4 → 8
+
+**Use faster LLM:**
+\`\`\`bash
+EXTERNAL_LLM_PROVIDER=groq
+\`\`\`
+
+### Data Persistence
+
+**Where is my data stored?**
+
+Docker volumes persist data even after stopping services:
+- \`dashboard_postgres_data\` - Database data
+- \`dashboard_trino_data\` - Trino metadata
+
+**View volumes:**
+\`\`\`bash
+docker volume ls | grep dashboard
+\`\`\`
+
+**Backup data:**
+\`\`\`bash
+# Backup PostgreSQL
+docker exec dashboard-postgres pg_dump -U nexus_service dashboard > backup.sql
+
+# Restore
+docker exec -i dashboard-postgres psql -U nexus_service dashboard < backup.sql
+\`\`\`
+
+**Remove all data:**
+\`\`\`bash
+./stop.sh --clean
+\`\`\`
+
+---
+
+## Security
+
+### Change Default Password
+
+1. Login with \`nexus_admin\` / \`admin\`
+2. Go to Settings → Account
+3. Change password immediately
+
+### Secure API Keys
+
+- Never commit \`.env\` to version control
+- Use strong, unique passwords
+- Rotate API keys regularly
+
+### Network Security
+
+For production use, consider:
+- Running behind a reverse proxy (nginx, Caddy)
+- Enabling SSL/TLS certificates
+- Implementing IP whitelisting
+- Using VPN for remote access
+
+---
+
+## Production Deployment
+
+**This Docker Compose setup is designed for local use and evaluation.**
+
+For production deployments, use Kubernetes with Helm:
+- **Helm Charts**: https://github.com/actyze/helm-charts
+- **Documentation**: https://docs.actyze.io/docs/deployment/helm
+- **Features**: Auto-scaling, high availability, production-grade resources
+
+---
+
+## Support
+
+**Documentation:**
+- Quick Start: [QUICK_START.md](QUICK_START.md)
+- Configuration: [CONFIGURATION.md](CONFIGURATION.md)
+- LLM Providers: [LLM_PROVIDERS.md](LLM_PROVIDERS.md)
+- Complete Guide: https://docs.actyze.io
+
+**Support:**
+- GitHub Issues: https://github.com/actyze/dashboard-docker/issues
+- Documentation: https://docs.actyze.io
+
+---
+
+**Deploy Actyze locally. Query your data instantly. No SQL required.**

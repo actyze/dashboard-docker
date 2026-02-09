@@ -12,7 +12,7 @@ Get up and running in under 5 minutes:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/roman1887/dashboard-docker.git
+git clone https://github.com/actyze/dashboard-docker.git
 cd dashboard-docker
 
 # 2. Configure environment
@@ -151,7 +151,7 @@ docker info | grep -E "CPUs|Total Memory"
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/roman1887/dashboard-docker.git
+git clone https://github.com/actyze/dashboard-docker.git
 cd dashboard-docker
 ```
 
@@ -302,6 +302,20 @@ CACHE_ENABLED=true
 CACHE_QUERY_MAX_SIZE=100
 CACHE_QUERY_TTL=1800  # 30 minutes
 ```
+
+#### 6. Operational Configuration (Local Development Defaults)
+
+For local development, the Docker Compose setup uses application defaults for timeouts, connection pools, and other operational settings. These are optimized for local use and require no additional configuration.
+
+**For production deployments** or custom operational settings, see:
+- **[Docker Operational Configuration](https://docs.actyze.io/docs/deployment/docker#operational-configuration)** - Complete guide to cache, timeout, and connection pool settings for Docker
+- **[Helm Operational Configuration](https://docs.actyze.io/docs/deployment/helm#operational-configuration)** - Production-grade configuration with Helm including rate limiting, circuit breakers, and more
+
+**Default Behavior:**
+- SQL query timeout: 60 seconds
+- LLM API timeout: 60 seconds
+- Connection pool: 20 connections (auto-managed)
+- Query cache: 100 entries, 30 min TTL (configurable via `.env`)
 
 ### Configuration Files
 
@@ -656,7 +670,7 @@ curl http://localhost:8081/v1/info  # Trino (may need auth)
 3. **Test connectivity**: Use `curl` commands above
 4. **Clean restart**: `./stop.sh --clean && ./start.sh`
 5. **Check documentation**: See [DEPLOYMENT.md](./DEPLOYMENT.md)
-6. **GitHub Issues**: https://github.com/roman1887/dashboard-docker/issues
+6. **GitHub Issues**: https://github.com/actyze/dashboard-docker/issues
 
 ---
 
@@ -739,7 +753,7 @@ This Docker Compose setup is designed for **local development and testing**. For
 
 ### Kubernetes/Helm Deployment
 
-See the [helm-charts repository](https://github.com/roman1887/helm-charts) for production-ready Kubernetes deployment with:
+See the [helm-charts repository](https://github.com/actyze/helm-charts) and [Helm deployment documentation](https://docs.actyze.io/docs/deployment/helm) for production-ready Kubernetes deployment with:
 
 - Auto-scaling and load balancing
 - Secrets management
@@ -805,18 +819,18 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ## 🆘 Support
 
-- **Documentation**: Check docs in this repository
-- **Issues**: https://github.com/roman1887/dashboard-docker/issues
-- **Discussions**: https://github.com/roman1887/dashboard-docker/discussions
-- **Main Project**: https://github.com/roman1887/dashboard
+- **Documentation**: https://docs.actyze.io
+- **Issues**: https://github.com/actyze/dashboard-docker/issues
+- **Discussions**: https://github.com/actyze/dashboard-docker/discussions
+- **Docker Hub**: https://hub.docker.com/u/actyze
 
 ---
 
 ## 🔗 Related Repositories
 
-- **Main Dashboard**: https://github.com/roman1887/dashboard
-- **Helm Charts**: https://github.com/roman1887/helm-charts
-- **Documentation**: https://github.com/roman1887/dashboard-marketing
+- **Helm Charts**: https://github.com/actyze/helm-charts (Production Kubernetes deployment)
+- **Documentation**: https://github.com/actyze/dashboard-marketing (Documentation site source)
+- **Documentation Site**: https://docs.actyze.io (Full user documentation)
 
 ---
 

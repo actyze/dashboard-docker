@@ -6,7 +6,7 @@ This repository provides a production-ready Docker Compose environment for runni
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 Get up and running in under 5 minutes:
 
@@ -30,7 +30,7 @@ open http://localhost:3000
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
@@ -46,7 +46,7 @@ open http://localhost:3000
 
 ---
 
-## 🎯 Overview
+## Overview
 
 Actyze Dashboard is an AI-powered natural language to SQL platform that enables users to query databases using plain English. This Docker Compose setup provides:
 
@@ -58,17 +58,17 @@ Actyze Dashboard is an AI-powered natural language to SQL platform that enables 
 
 ### Key Features
 
-✅ Natural language to SQL conversion using LLMs  
-✅ FAISS-based intelligent schema recommendations  
-✅ Support for multiple data sources (PostgreSQL, MongoDB, Snowflake)  
-✅ Built-in query caching for performance  
-✅ Complete REST API with GraphQL support  
-✅ Modern React frontend with Material-UI  
-✅ Production-ready with health checks and monitoring  
+Natural language to SQL conversion using LLMs  
+FAISS-based intelligent schema recommendations  
+Support for multiple data sources (PostgreSQL, MongoDB, Snowflake)  
+Built-in query caching for performance  
+Complete REST API with GraphQL support  
+Modern React frontend with Material-UI  
+Production-ready with health checks and monitoring  
 
 ---
 
-## 📦 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have:
 
@@ -105,7 +105,7 @@ docker info | grep -E "CPUs|Total Memory"
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -197,11 +197,11 @@ See [Configuration](#configuration) section for detailed options.
 docker-compose ps
 
 # All services should show "healthy" status
-# ✓ dashboard-frontend     Up (healthy)
-# ✓ dashboard-nexus        Up (healthy)
-# ✓ dashboard-postgres     Up (healthy)
-# ✓ dashboard-schema       Up (healthy)
-# ✓ dashboard-trino        Up (healthy)
+# dashboard-frontend     Up (healthy)
+# dashboard-nexus        Up (healthy)
+# dashboard-postgres     Up (healthy)
+# dashboard-schema       Up (healthy)
+# dashboard-trino        Up (healthy)
 ```
 
 ### Step 5: Access Dashboard
@@ -218,7 +218,7 @@ Open your browser to:
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -476,7 +476,7 @@ EXTERNAL_LLM_EXTRA_HEADERS=
 
 ---
 
-## 🔧 Deployment Profiles
+## Deployment Profiles
 
 Docker Compose profiles let you choose which services to run.
 
@@ -540,7 +540,7 @@ docker-compose --profile local --profile trino-only up -d
 
 ---
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -674,7 +674,7 @@ curl http://localhost:8081/v1/info  # Trino (may need auth)
 
 ---
 
-## 💻 Development Workflow
+## Development Workflow
 
 ### Making Code Changes
 
@@ -747,7 +747,7 @@ docker-compose exec nexus pytest
 
 ---
 
-## 🚀 Production Deployment
+## Production Deployment
 
 This Docker Compose setup is designed for **local development and testing**. For production, we recommend:
 
@@ -795,7 +795,7 @@ If you must use Docker Compose in production:
 
 ---
 
-## 📚 Additional Documentation
+## Additional Documentation
 
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Detailed deployment guide
 - **[LLM_PROVIDERS.md](./LLM_PROVIDERS.md)** - LLM provider configuration
@@ -805,19 +805,19 @@ If you must use Docker Compose in production:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
 ---
 
-## 🆘 Support
+## Support
 
 - **Documentation**: https://docs.actyze.io
 - **Issues**: https://github.com/actyze/dashboard-docker/issues
@@ -826,7 +826,7 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ---
 
-## 🔗 Related Repositories
+## Related Repositories
 
 - **Helm Charts**: https://github.com/actyze/helm-charts (Production Kubernetes deployment)
 - **Documentation**: https://github.com/actyze/dashboard-marketing (Documentation site source)

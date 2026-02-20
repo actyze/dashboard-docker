@@ -75,6 +75,52 @@ EXTERNAL_LLM_TEMPERATURE=0.1
 
 ---
 
+## AWS Bedrock
+
+Use Claude models via AWS Bedrock with IAM authentication.
+
+**Prerequisites:**
+- AWS account with Bedrock access
+- IAM user with `bedrock:InvokeModel` permission
+- Model access granted in AWS Bedrock console
+
+**Get Bearer Token:** Use AWS CLI or SDK to generate a bearer token (valid for 12 hours):
+\`\`\`bash
+# Generate Bedrock bearer token (macOS/Linux)
+aws bedrock-runtime invoke-model \\
+  --region us-east-2 \\
+  --model-id us.anthropic.claude-sonnet-4-5-20250929-v1:0 \\
+  --generate-bearer-token > /tmp/bedrock_token.txt
+\`\`\`
+
+**Configuration in \`.env\`:**
+\`\`\`bash
+# API Key (AWS Bearer Token - refresh every 12 hours)
+ANTHROPIC_API_KEY=bedrock-api-key-YOUR_BEARER_TOKEN
+
+# Provider Settings
+EXTERNAL_LLM_PROVIDER=bedrock
+EXTERNAL_LLM_BASE_URL=https://bedrock-runtime.us-east-2.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/converse
+EXTERNAL_LLM_MODEL=us.anthropic.claude-sonnet-4-5-20250929-v1:0
+EXTERNAL_LLM_AUTH_TYPE=bearer
+EXTERNAL_LLM_EXTRA_HEADERS=
+EXTERNAL_LLM_MAX_TOKENS=8192
+EXTERNAL_LLM_TEMPERATURE=0.1
+\`\`\`
+
+**Available Models:**
+- \`us.anthropic.claude-sonnet-4-5-20250929-v1:0\` (recommended)
+- \`us.anthropic.claude-opus-4-20250514-v1:0\` (most powerful)
+- \`us.anthropic.claude-3-5-sonnet-20241022-v2:0\` (fast)
+
+**Notes:**
+- Model ID is in the endpoint URL, not just the model field
+- Bearer tokens expire after 12 hours - use a refresh script
+- Endpoint format: \`https://bedrock-runtime.{region}.amazonaws.com/model/{model-id}/converse\`
+- See [AWS Bedrock Documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html)
+
+---
+
 ## Perplexity AI
 
 Advanced reasoning models optimized for complex queries.

@@ -86,7 +86,7 @@ services:
   # Schema Service (FAISS-based table recommendations)
   # Note: Database schema is now managed by Nexus migrations (nexus/db/migrations/)
   schema-service:
-    image: actyze/schema-service:${SCHEMA_SERVICE_VERSION:-latest}
+    image: actyze/dashboard-schema-service:${SCHEMA_SERVICE_VERSION:-latest}
     container_name: dashboard-schema-service
     ports:
       - "8001:8000"
@@ -134,7 +134,7 @@ services:
 
   # Nexus Service (Main FastAPI Backend)
   nexus:
-    image: actyze/nexus:${NEXUS_VERSION:-latest}
+    image: actyze/dashboard-nexus:${NEXUS_VERSION:-latest}
     container_name: dashboard-nexus
     ports:
       - "8000:8000"
@@ -205,7 +205,7 @@ services:
 
   # Frontend Service
   frontend:
-    image: actyze/frontend:${FRONTEND_VERSION:-latest}
+    image: actyze/dashboard-frontend:${FRONTEND_VERSION:-latest}
     container_name: dashboard-frontend
     ports:
       - "3000:80"

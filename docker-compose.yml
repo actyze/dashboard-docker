@@ -44,10 +44,7 @@ services:
 
   # Trino Query Engine (OPTIONAL - use profile to enable/disable)
   trino:
-    build:
-      context: ./trino
-      dockerfile: Dockerfile
-    image: dashboard-trino:latest
+    image: trinodb/trino:${TRINO_VERSION:-477}
     container_name: dashboard-trino
     ports:
       - "8081:8080"
@@ -89,9 +86,7 @@ services:
   # Schema Service (FAISS-based table recommendations)
   # Note: Database schema is now managed by Nexus migrations (nexus/db/migrations/)
   schema-service:
-    build:
-      context: ../schema-service
-      dockerfile: Dockerfile
+    image: actyze/schema-service:${SCHEMA_SERVICE_VERSION:-latest}
     container_name: dashboard-schema-service
     ports:
       - "8001:8000"
@@ -139,9 +134,7 @@ services:
 
   # Nexus Service (Main FastAPI Backend)
   nexus:
-    build:
-      context: ../nexus
-      dockerfile: Dockerfile
+    image: actyze/nexus:${NEXUS_VERSION:-latest}
     container_name: dashboard-nexus
     ports:
       - "8000:8000"
@@ -212,11 +205,7 @@ services:
 
   # Frontend Service
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-      args:
-        REACT_APP_API_BASE_URL: /api  # Relative path - NGINX proxies to nexus container
+    image: actyze/frontend:${FRONTEND_VERSION:-latest}
     container_name: dashboard-frontend
     ports:
       - "3000:80"

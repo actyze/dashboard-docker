@@ -118,15 +118,12 @@ nano .env
 **Required Configuration:**
 
 ```bash
-# LLM API Key (REQUIRED)
+# AI Provider (REQUIRED) - Choose one provider's API key
 ANTHROPIC_API_KEY=your-api-key-here
+EXTERNAL_LLM_MODEL=claude-sonnet-4-20250514
 
 # Database Password (REQUIRED)
 POSTGRES_PASSWORD=choose-a-secure-password
-
-# LLM Provider Settings
-EXTERNAL_LLM_PROVIDER=anthropic
-EXTERNAL_LLM_MODEL=claude-sonnet-4-20250514
 ```
 
 **Optional - Connect Your Database:**
@@ -166,45 +163,49 @@ See [Configuration Guide](#configuration) for all options.
 
 ## Configuration
 
-### LLM Providers
+### AI Providers
 
-Actyze supports multiple AI providers. Configure in `.env`:
+Actyze supports 100+ AI providers via LiteLLM. Just set the provider's API key and model name - everything else is automatic.
 
 **Anthropic Claude (Recommended):**
 ```bash
 ANTHROPIC_API_KEY=sk-ant-xxxxx
-EXTERNAL_LLM_PROVIDER=anthropic
 EXTERNAL_LLM_MODEL=claude-sonnet-4-20250514
-EXTERNAL_LLM_AUTH_TYPE=x-api-key
-EXTERNAL_LLM_EXTRA_HEADERS={"anthropic-version": "2023-06-01"}
 ```
 
 **OpenAI:**
 ```bash
-ANTHROPIC_API_KEY=sk-xxxxx  # Yes, same variable for all providers
-EXTERNAL_LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-xxxxx
 EXTERNAL_LLM_MODEL=gpt-4o
-EXTERNAL_LLM_AUTH_TYPE=bearer
-EXTERNAL_LLM_EXTRA_HEADERS=
+```
+
+**Google Gemini:**
+```bash
+GEMINI_API_KEY=your-key
+EXTERNAL_LLM_MODEL=gemini/gemini-pro
 ```
 
 **Perplexity:**
 ```bash
-ANTHROPIC_API_KEY=pplx-xxxxx
-EXTERNAL_LLM_PROVIDER=perplexity
-EXTERNAL_LLM_MODEL=sonar-reasoning-pro
-EXTERNAL_LLM_AUTH_TYPE=bearer
+PERPLEXITY_API_KEY=pplx-xxxxx
+EXTERNAL_LLM_MODEL=perplexity/sonar-reasoning-pro
 ```
 
-**Groq (Free):**
+**Groq (Free tier available):**
 ```bash
-ANTHROPIC_API_KEY=gsk_xxxxx
-EXTERNAL_LLM_PROVIDER=groq
-EXTERNAL_LLM_MODEL=mixtral-8x7b-32768
-EXTERNAL_LLM_AUTH_TYPE=bearer
+GROQ_API_KEY=gsk_xxxxx
+EXTERNAL_LLM_MODEL=groq/llama-3.3-70b-versatile
 ```
 
-See full provider list: [LLM_PROVIDERS.md](./LLM_PROVIDERS.md)
+**Enterprise Gateway (for IT-managed AI):**
+```bash
+EXTERNAL_LLM_MODE=openai-compatible
+EXTERNAL_LLM_BASE_URL=https://llm-gateway.company.com/v1/chat/completions
+EXTERNAL_LLM_API_KEY=your-enterprise-token
+EXTERNAL_LLM_MODEL=your-internal-model
+```
+
+See full provider list and examples: [LLM_PROVIDERS.md](./LLM_PROVIDERS.md)
 
 ### Database Connections
 

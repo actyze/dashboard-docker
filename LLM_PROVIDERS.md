@@ -164,7 +164,12 @@ GEMINI_API_KEY=your-gemini-key
 **Configuration in `.env`:**
 ```bash
 EXTERNAL_LLM_ENABLED=true
+# Option 1: Standard model ID
 EXTERNAL_LLM_MODEL=bedrock/anthropic.claude-sonnet-4-5-20250929-v1:0
+# Option 2: Cross-region inference profile (NEW in LiteLLM v1.81.12+)
+# EXTERNAL_LLM_MODEL=bedrock/us.anthropic.claude-sonnet-4-20250514
+# EXTERNAL_LLM_MODEL=bedrock/global.anthropic.claude-sonnet-4-20250514
+
 AWS_REGION_NAME=us-east-2
 # AWS credentials via standard env vars (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 # Or use IAM role if running on EC2/ECS
@@ -174,9 +179,11 @@ AWS_REGION_NAME=us-east-2
 - `bedrock/anthropic.claude-sonnet-4-5-20250929-v1:0` (recommended)
 - `bedrock/anthropic.claude-opus-4-20250514-v1:0` (most powerful)
 - `bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0` (fast)
+- `bedrock/us.anthropic.claude-sonnet-4-20250514` (US inference profile)
+- `bedrock/global.anthropic.claude-sonnet-4-20250514` (global routing)
 - `bedrock/meta.llama3-70b-instruct-v1:0` (open source)
 
-**Note:** Model name must include `bedrock/` prefix.
+**Note:** Model name must include `bedrock/` prefix. Inference profiles (`us.*`, `global.*`) require LiteLLM v1.81.12+.
 
 **Pricing:** https://aws.amazon.com/bedrock/pricing/
 

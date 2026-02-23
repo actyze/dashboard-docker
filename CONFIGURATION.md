@@ -101,6 +101,7 @@ TRINO_PASSWORD=your-password
 TRINO_CATALOG=your-catalog
 TRINO_SCHEMA=your-schema
 TRINO_SSL=true
+TRINO_SSL_VERIFY=false  # Set to false for self-signed certificates
 \`\`\`
 
 ### Trino Connectors
@@ -348,6 +349,7 @@ TRINO_PORT=443
 TRINO_USER=analytics_user
 TRINO_PASSWORD=your-password
 TRINO_SSL=true
+TRINO_SSL_VERIFY=false  # Set to false for self-signed certificates
 
 # Keep local PostgreSQL for app data
 POSTGRES_HOST=postgres

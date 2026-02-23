@@ -133,6 +133,7 @@ POSTGRES_PASSWORD=choose-a-secure-password
 TRINO_HOST=your-trino-server.com
 TRINO_PORT=443
 TRINO_SSL=true
+TRINO_SSL_VERIFY=false  # Set to false for self-signed certificates
 ```
 
 See [Configuration Guide](#configuration) for all options.
@@ -223,6 +224,7 @@ TRINO_PORT=443
 TRINO_USER=your-username
 TRINO_PASSWORD=your-password
 TRINO_SSL=true
+TRINO_SSL_VERIFY=false  # Set to false for self-signed certificates
 TRINO_CATALOG=your-catalog
 TRINO_SCHEMA=your-schema
 ```

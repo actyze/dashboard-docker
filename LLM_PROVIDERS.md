@@ -2,6 +2,18 @@
 
 Choose your preferred AI provider for natural language to SQL queries. Actyze works with all major AI services, giving you the flexibility to use what works best for your organization.
 
+## 🌟 Powered by LiteLLM
+
+Actyze supports **100+ AI providers** through [LiteLLM](https://docs.litellm.ai/) integration, including:
+- **Cloud Providers**: Anthropic, OpenAI, Google Gemini, AWS Bedrock, Azure OpenAI
+- **Fast & Free**: Groq, Together AI, Fireworks AI
+- **Local/Self-Hosted**: Ollama, LM Studio, vLLM, Hugging Face
+- **Enterprise**: AWS Bedrock, Azure OpenAI, Vertex AI, Custom Gateways
+
+**📚 Complete Provider List:**
+- **[Full Documentation](https://docs.actyze.io/docs/features/ai-providers)** - All 100+ providers categorized by use case
+- **[LiteLLM Providers](https://docs.litellm.ai/docs/providers)** - Official LiteLLM documentation
+
 ---
 
 ## 🚀 Quick Start

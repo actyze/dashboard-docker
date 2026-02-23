@@ -205,7 +205,9 @@ EXTERNAL_LLM_API_KEY=your-enterprise-token
 EXTERNAL_LLM_MODEL=your-internal-model
 ```
 
-See full provider list and examples: [LLM_PROVIDERS.md](./LLM_PROVIDERS.md)
+**See Full Provider List:**
+- [LLM_PROVIDERS.md](./LLM_PROVIDERS.md) - Detailed configuration guide
+- [All 100+ Providers](https://docs.actyze.io/docs/features/ai-providers) - Complete provider documentation
 
 ### Database Connections
 

@@ -328,6 +328,49 @@ INCLUDE_TPCH=true
 
 ---
 
+## Preferred Tables Configuration
+
+### What Are Preferred Tables?
+
+Preferred tables allow each user to personally mark up to 25 tables (configurable) that the AI should **prioritize** when generating SQL. When a user marks a table as preferred:
+
+- The AI receives full table metadata (columns, types, descriptions) in the prompt
+- Preferred tables are **★ starred and prioritized** over regular schema recommendations
+- This is user-specific — each user has their own preferred tables list
+
+### Setting the Limit
+
+The maximum number of preferred tables per user is controlled by `MAX_PREFERRED_TABLES`, set directly in `docker-compose.yml` (default: 25):
+
+```yaml
+# docker-compose.yml — nexus service environment
+MAX_PREFERRED_TABLES: 25   # Editable default
+```
+
+**Token budget note**: Each preferred table injects its columns and metadata into the LLM prompt. A higher limit means more tokens consumed per query. Adjust `EXTERNAL_LLM_MAX_TOKENS` alongside this value if you increase the limit significantly (e.g. setting 50 preferred tables may require 6000+ max tokens).
+
+| `MAX_PREFERRED_TABLES` | Recommended `EXTERNAL_LLM_MAX_TOKENS` |
+|------------------------|---------------------------------------|
+| 10–25 (default)        | 4096 (default)                        |
+| 26–40                  | 6000                                  |
+| 41–50                  | 8000                                  |
+
+### Via User Interface
+
+1. Go to **Data Intelligence** → **Schema Optimize**
+2. Click on any **table** in the schema tree
+3. Toggle **"Mark as Preferred"** in the right panel
+4. Click **Save**
+
+Or use **Bulk Preferred** mode:
+1. Click **"Bulk Preferred"** button in Schema Optimize
+2. Check multiple tables (checkboxes appear on table rows)
+3. Click **"Mark Preferred"** or **"Remove Preferred"** in the action bar
+
+**Note:** Hidden tables cannot be marked as preferred. Marking a preferred table as hidden automatically removes its preferred status.
+
+---
+
 ## Configuration by Use Case
 
 ### Evaluation/Testing

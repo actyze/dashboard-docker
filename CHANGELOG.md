@@ -64,6 +64,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-03-03
+
+### Added
+
+#### Preferred Tables Feature
+- Users can mark individual tables as **preferred** to guide the AI during SQL generation
+- Preferred tables are sent to the LLM with full column metadata and descriptions (★ starred in prompt)
+- Bulk preferred mode: select and mark/unmark multiple tables at once in Schema Optimize UI
+- Preferred tables display with ⭐ star icon in the Query page schema sidebar
+- `MAX_PREFERRED_TABLES` environment variable controls per-user limit (default: **25**, configurable in `docker-compose.yml`)
+- **Token budget awareness**: increasing `MAX_PREFERRED_TABLES` injects more context into the LLM prompt; adjust `EXTERNAL_LLM_MAX_TOKENS` accordingly (see CONFIGURATION.md)
+- Hidden tables cannot be marked as preferred; hiding a preferred table automatically removes its preferred status
+
+#### Performance Improvements
+- Schema service `/table/metadata` endpoint now reads from in-memory cache instead of querying Trino live — marking tables as preferred is now near-instant
+- Bulk preferred operations use a single API call instead of one call per table
+
+### Changed
+
+- Replaced "boost" (weight-based table scoring) with "preferred tables" (explicit user-curated table list)
+- Database migration V029 automatically runs on startup: migrates any existing boost entries to preferred, removes deprecated `boost_weight` and `preferred_columns` columns
+- LLM prompt updated: preferred tables section appears before schema recommendations with full column context
+
+### Removed
+
+- Removed `boost_weight` and `preferred_columns` concepts — replaced entirely by preferred tables
+
+---
+
 ## [Unreleased]
 
 ### Planned Features

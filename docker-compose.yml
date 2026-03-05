@@ -163,8 +163,9 @@ services:
       TRINO_MAX_ROWS: ${TRINO_MAX_ROWS:-1000}
       TRINO_QUERY_TIMEOUT_SECONDS: ${TRINO_QUERY_TIMEOUT_SECONDS:-300}
       # Query Processing Timeouts
-      DEFAULT_TIMEOUT_SECONDS: ${DEFAULT_TIMEOUT_SECONDS:-30}
-      EXTERNAL_LLM_TIMEOUT: ${EXTERNAL_LLM_TIMEOUT:-30}
+      DEFAULT_TIMEOUT_SECONDS: ${DEFAULT_TIMEOUT_SECONDS:-120}
+      TRINO_EXECUTE_TIMEOUT_SECONDS: ${EXECUTE_TIMEOUT_SECONDS:-120}
+      EXTERNAL_LLM_TIMEOUT: ${EXTERNAL_LLM_TIMEOUT:-120}
       # Schema Service Configuration
       SCHEMA_SERVICE_URL: http://${SCHEMA_SERVICE_HOST:-schema-service}:${SCHEMA_SERVICE_PORT:-8000}
       SCHEMA_SERVICE_KEY: ${SCHEMA_SERVICE_KEY}
@@ -221,6 +222,8 @@ services:
     container_name: dashboard-frontend
     ports:
       - "3000:80"
+    environment:
+      REACT_APP_EXECUTE_TIMEOUT_SECONDS: ${EXECUTE_TIMEOUT_SECONDS:-120}
     depends_on:
       nexus:
         condition: service_healthy

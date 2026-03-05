@@ -227,8 +227,27 @@ EXTERNAL_LLM_EXTRA_HEADERS={"anthropic-version": "2023-06-01"}
 # Response Configuration
 EXTERNAL_LLM_MAX_TOKENS=4096       # Maximum response length
 EXTERNAL_LLM_TEMPERATURE=0.1        # Response creativity (0-1)
-EXTERNAL_LLM_TIMEOUT=60             # Request timeout (seconds)
+EXTERNAL_LLM_TIMEOUT=120            # Request timeout (seconds)
 \`\`\`
+
+### Timeout Configuration
+
+All three timeout variables share the same `EXECUTE_TIMEOUT_SECONDS` source so you only need to change one value:
+
+```bash
+# Controls Trino SQL execution AND the frontend HTTP request timeout.
+# Increase for slow enterprise Trino clusters (queries can take 60–120s+).
+EXECUTE_TIMEOUT_SECONDS=120
+
+# Overall NL→SQL pipeline timeout (schema recommendations + LLM generation).
+DEFAULT_TIMEOUT_SECONDS=120
+
+# LLM API call timeout (Bedrock, Anthropic, OpenAI, etc.).
+EXTERNAL_LLM_TIMEOUT=120
+```
+
+> **Why does `EXECUTE_TIMEOUT_SECONDS` control the frontend timeout?**  
+> The frontend Axios HTTP timeout is set to `EXECUTE_TIMEOUT_SECONDS + 30` seconds. This ensures the browser never drops the connection before the backend finishes a long Trino query. Without this, the UI would show a network error even when the query eventually succeeds on the server.
 
 ### Database Connection Pooling
 
@@ -280,7 +299,7 @@ EXTERNAL_LLM_AUTH_TYPE=x-api-key
 EXTERNAL_LLM_EXTRA_HEADERS={"anthropic-version": "2023-06-01"}
 EXTERNAL_LLM_MAX_TOKENS=4096
 EXTERNAL_LLM_TEMPERATURE=0.1
-EXTERNAL_LLM_TIMEOUT=60
+EXTERNAL_LLM_TIMEOUT=120
 
 # =============================================================================
 # REQUIRED: DATABASE CONFIGURATION
@@ -310,6 +329,15 @@ CACHE_QUERY_MAX_SIZE=100
 CACHE_QUERY_TTL=1800
 LOG_LEVEL=INFO
 DEBUG=false
+
+# =============================================================================
+# TIMEOUT CONFIGURATION
+# =============================================================================
+# Single variable drives Trino execution timeout + frontend HTTP timeout.
+# Increase for slow/large enterprise Trino queries.
+EXECUTE_TIMEOUT_SECONDS=120
+DEFAULT_TIMEOUT_SECONDS=120
+EXTERNAL_LLM_TIMEOUT=120
 
 # =============================================================================
 # SERVICE CONFIGURATION

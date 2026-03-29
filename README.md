@@ -208,7 +208,7 @@ EXTERNAL_LLM_MODEL=your-internal-model
 
 **See Full Provider List:**
 - [LLM_PROVIDERS.md](./LLM_PROVIDERS.md) - Detailed configuration guide
-- [All 100+ Providers](https://docs.actyze.io/docs/features/ai-providers) - Complete provider documentation
+- [All 100+ Providers](./LLM_PROVIDERS.md) - Complete provider documentation
 
 ### Database Connections
 
@@ -408,13 +408,11 @@ docker-compose logs -f
 ```
 
 **Documentation:**
-- Full documentation: https://docs.actyze.io
 - LLM providers: [LLM_PROVIDERS.md](./LLM_PROVIDERS.md)
 - Architecture: [ARCHITECTURE.md](./ARCHITECTURE.md)
 
 **Support:**
 - GitHub Issues: https://github.com/actyze/dashboard-docker/issues
-- Documentation: https://docs.actyze.io
 
 ---
 
@@ -441,7 +439,7 @@ Docker Compose automatically pulls the latest images from Docker Hub when you re
 
 **For production deployments**, use Kubernetes with Helm charts:
 - Helm Charts: https://github.com/actyze/helm-charts
-- Documentation: https://docs.actyze.io/docs/deployment/helm
+- Documentation: https://github.com/actyze/helm-charts
 - Features: Auto-scaling, high availability, production-grade resources
 
 ---
@@ -457,9 +455,37 @@ Docker Compose automatically pulls the latest images from Docker Hub when you re
 
 ## Related Resources
 
-- **Documentation Site**: https://docs.actyze.io
+- **Main Repository**: https://github.com/actyze/dashboard
 - **Helm Charts** (Production): https://github.com/actyze/helm-charts
 - **Docker Hub**: https://hub.docker.com/u/actyze
+
+## Build from Source
+
+Instead of pulling pre-built images from Docker Hub, you can build locally:
+
+```bash
+# Clone the main dashboard repository
+git clone https://github.com/actyze/dashboard.git
+cd dashboard
+
+# Build images locally
+docker build -t actyze/dashboard-frontend:local ./frontend
+docker build -t actyze/dashboard-nexus:local ./nexus
+docker build -t actyze/dashboard-schema-service:local ./schema-service
+```
+
+Then override the image versions in your .env:
+```
+FRONTEND_VERSION=local
+NEXUS_VERSION=local
+SCHEMA_SERVICE_VERSION=local
+```
+
+---
+
+## License
+
+This project is licensed under [AGPL-3.0-or-later](./LICENSE).
 
 ---
 

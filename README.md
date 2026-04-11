@@ -37,6 +37,7 @@ Actyze is an AI-powered analytics platform that lets you query databases using n
 - Automatic SQL generation powered by AI
 - Connect to multiple data sources (PostgreSQL, MySQL, MongoDB, Snowflake, BigQuery, and more)
 - Upload CSV/Excel files for instant analysis
+- Scheduled KPIs — pre-aggregate metrics on a 1-24 hour schedule, materialized as queryable tables in `kpi_data` schema
 - Role-based access control
 - Query caching for fast performance
 
@@ -231,6 +232,15 @@ TRINO_SCHEMA=your-schema
 
 **Configure Trino to connect to your databases:**
 See `trino/` directory for connector configurations (PostgreSQL, MySQL, MongoDB, Snowflake, etc.)
+
+### Scheduled KPI Settings
+
+```bash
+# How often the scheduler checks for KPIs due for collection (seconds)
+KPI_COLLECTION_INTERVAL_SECONDS=300   # Default: 5 minutes
+```
+
+KPI collection intervals (1-24 hours) are configured per-KPI in the UI. This setting controls how frequently the scheduler checks for due KPIs.
 
 ### Performance Settings
 

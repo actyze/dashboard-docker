@@ -170,7 +170,14 @@ Actyze Dashboard is a microservices-based platform that converts natural languag
    - Intent matching
    - Schema metadata caching
 
-4. **Authentication**
+4. **Relationship Graph Service**
+   - Persistent table-to-table JOIN relationships (PostgreSQL-backed)
+   - Three-layer population: convention inference, query history mining, admin curation
+   - BFS graph traversal for optimal join path resolution
+   - Usage tracking (relationships that appear in generated SQL get higher ranking)
+   - Gated by `RELATIONSHIP_GRAPH_ENABLED` flag with graceful fallback
+
+5. **Authentication**
    - JWT token generation
    - Role-based access control
    - Session management

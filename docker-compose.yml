@@ -186,6 +186,8 @@ services:
       CACHE_QUERY_TTL: ${CACHE_QUERY_TTL:-1800}
       # Preferred Tables Configuration
       MAX_PREFERRED_TABLES: 25
+      # Semantic Relationship Graph
+      RELATIONSHIP_GRAPH_ENABLED: ${RELATIONSHIP_GRAPH_ENABLED:-true}
       # Development Settings
       DEBUG: ${DEBUG:-true}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}

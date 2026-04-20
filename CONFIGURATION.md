@@ -349,6 +349,11 @@ SCHEMA_SERVICE_PORT=8001
 SCHEMA_SERVICE_KEY=dev-secret-key-change-in-production
 
 # =============================================================================
+# SEMANTIC RELATIONSHIP GRAPH
+# =============================================================================
+RELATIONSHIP_GRAPH_ENABLED=true
+
+# =============================================================================
 # OPTIONAL: SAMPLE DATA
 # =============================================================================
 INCLUDE_TPCH=true
@@ -396,6 +401,58 @@ Or use **Bulk Preferred** mode:
 3. Click **"Mark Preferred"** or **"Remove Preferred"** in the action bar
 
 **Note:** Hidden tables cannot be marked as preferred. Marking a preferred table as hidden automatically removes its preferred status.
+
+---
+
+## Semantic Relationship Graph
+
+### What Is It?
+
+The relationship graph stores table-to-table JOIN relationships (e.g., `orders.custkey = customer.custkey`) and provides them to the LLM during SQL generation. Instead of the LLM guessing JOINs from column names, it gets verified relationship paths — dramatically improving multi-table query accuracy.
+
+### How It Works
+
+Relationships are populated through three layers:
+
+1. **Convention inference** — Automatically detects `*_id`, `*_uuid`, `*_fk` column patterns and junction tables
+2. **Query history mining** — Parses successful SQL from past queries to extract proven JOIN patterns
+3. **Admin curation** — Manual creation/verification via the Data Intelligence → Relationships UI
+
+When a user asks a natural language question, the system:
+1. Identifies candidate tables (via FAISS semantic search)
+2. Fetches relationships between those tables from the graph
+3. Runs BFS to find optimal join paths
+4. Passes relationships + paths to the LLM prompt
+
+### Configuration
+
+```bash
+# Enable/disable relationship graph features (default: true)
+RELATIONSHIP_GRAPH_ENABLED=true
+```
+
+When disabled, the system falls back to column-name inference (the previous behavior). When enabled but the graph is empty, it also falls back gracefully.
+
+### Management via UI
+
+1. Go to **Data Intelligence** → **Relationships** tab
+2. Use **Auto-Infer** to detect relationships from column naming conventions
+3. Use **Mine History** to extract JOIN patterns from past queries
+4. Use **+ Add** to manually create relationships
+5. **Verify** (✓) relationships to set confidence to 100%
+6. **Disable** (🚫) incorrect relationships
+
+### API Endpoints
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/api/relationships` | Viewer | List relationships (filterable) |
+| GET | `/api/relationships/graph/path?tables=a,b` | Viewer | Find join path |
+| POST | `/api/relationships` | Admin | Create relationship |
+| POST | `/api/relationships/{id}/verify` | Admin | Verify (confidence → 1.0) |
+| POST | `/api/relationships/{id}/disable` | Admin | Soft delete |
+| POST | `/api/relationships/infer` | Admin | Trigger convention inference |
+| POST | `/api/relationships/mine` | Admin | Mine query history for JOINs |
 
 ---
 

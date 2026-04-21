@@ -373,9 +373,9 @@ sales
 **Models**:
 | Worker | Models | Use Cases | Image Size |
 |--------|--------|-----------|------------|
-| XGBoost | Classifier, Regressor | Churn, fraud, CLV, scoring | ~780MB |
+| XGBoost | Classifier, Regressor, Isolation Forest | Churn, fraud, CLV, scoring, anomaly detection | ~780MB |
 | LightGBM | Classifier, Regressor | Large-scale tabular predictions | ~780MB |
-| AutoGluon | ARIMA, ETS, Theta ensemble | Revenue, demand, cost forecasting | ~3.9GB |
+| AutoGluon | ARIMA, ETS, Theta ensemble (multivariate) | Revenue, demand, cost forecasting with covariates | ~3.9GB |
 
 **Data Flow**:
 ```

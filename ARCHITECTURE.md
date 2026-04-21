@@ -356,6 +356,41 @@ sales
 - Query memory: 256MB per node
 - Suitable for small-medium queries
 
+### 6. Prediction Workers (Optional)
+
+**Technology**: Python, FastAPI, XGBoost/LightGBM/AutoGluon
+
+**Ports**: 8401 (XGBoost), 8402 (LightGBM), 8403 (AutoGluon)
+
+**Profile-gated**: Not started by default. Enable with `--profile predictions` or `--profile predictions-timeseries`.
+
+**Responsibilities**:
+- Train ML models on KPI data or custom SQL queries
+- Read training data directly from Trino (no data passes through Nexus)
+- Write prediction results directly to PostgreSQL (`prediction_data` schema)
+- Return metrics and column metadata to Nexus for FAISS registration
+
+**Models**:
+| Worker | Models | Use Cases | Image Size |
+|--------|--------|-----------|------------|
+| XGBoost | Classifier, Regressor | Churn, fraud, CLV, scoring | ~780MB |
+| LightGBM | Classifier, Regressor | Large-scale tabular predictions | ~780MB |
+| AutoGluon | ARIMA, ETS, Theta ensemble | Revenue, demand, cost forecasting | ~3.9GB |
+
+**Data Flow**:
+```
+Nexus sends: SQL query + Trino credentials + Postgres credentials
+  --> Worker reads from Trino (streaming in 50K-row chunks)
+  --> Worker trains model (80/20 backtest split)
+  --> Worker writes predictions to prediction_data schema
+  --> Worker returns metrics + column metadata to Nexus
+  --> Nexus registers output table with FAISS for NL-to-SQL discovery
+```
+
+**Resource Limits**:
+- XGBoost/LightGBM: 1-2 CPU, 512MB-1GB RAM
+- AutoGluon: 2-4 CPU, 2-6GB RAM (CPU with `fast_training` preset)
+
 ---
 
 ## Data Flow

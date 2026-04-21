@@ -247,6 +247,88 @@ services:
     profiles:
       - local
 
+  # --------------------------------------------------------------------------
+  # Prediction Workers (profile-gated)
+  # Enable with: docker compose --profile predictions up
+  # --------------------------------------------------------------------------
+
+  # XGBoost Worker — tabular classification + regression
+  prediction-worker-xgboost:
+    image: actyze/prediction-worker-xgboost:${PREDICTION_XGBOOST_VERSION:-latest}
+    container_name: prediction-worker-xgboost
+    ports:
+      - "8401:8400"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8400/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - dashboard
+    restart: unless-stopped
+    profiles:
+      - predictions
+
+  # LightGBM Worker — tabular classification + regression
+  prediction-worker-lightgbm:
+    image: actyze/prediction-worker-lightgbm:${PREDICTION_LIGHTGBM_VERSION:-latest}
+    container_name: prediction-worker-lightgbm
+    ports:
+      - "8402:8400"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          memory: 256M
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8400/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - dashboard
+    restart: unless-stopped
+    profiles:
+      - predictions
+
+  # AutoGluon TimeSeries Worker — forecasting (large image, enable when needed)
+  prediction-worker-autogluon:
+    image: actyze/prediction-worker-autogluon:${PREDICTION_AUTOGLUON_VERSION:-latest}
+    container_name: prediction-worker-autogluon
+    ports:
+      - "8403:8400"
+    environment:
+      AUTOGLUON_PRESET: ${AUTOGLUON_PRESET:-fast_training}
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 6G
+        reservations:
+          memory: 2G
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8400/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - dashboard
+    restart: unless-stopped
+    profiles:
+      - predictions-timeseries
+
 volumes:
   postgres_data:
     driver: local

@@ -38,6 +38,7 @@ Actyze is an AI-powered analytics platform that lets you query databases using n
 - Connect to multiple data sources (PostgreSQL, MySQL, MongoDB, Snowflake, BigQuery, and more)
 - Upload CSV/Excel files for instant analysis
 - Scheduled KPIs — pre-aggregate metrics on a 1-24 hour schedule, materialized as queryable tables in `kpi_data` schema
+- Predictive Intelligence — ML predictions (forecast, classify, estimate) from KPI data with XGBoost, LightGBM, and AutoGluon
 - Role-based access control
 - Query caching for fast performance
 
@@ -88,12 +89,25 @@ Actyze runs as five containerized services, all pulled from Docker Hub:
             └──────────────────┘
 ```
 
-**Services:**
+**Core Services:**
 - **Frontend** (port 3000): Web interface
 - **Nexus** (port 8000): API and AI orchestration
 - **Schema Service** (port 8001): Intelligent table recommendations
 - **PostgreSQL** (port 5432): Application database
 - **Trino** (port 8081): Connects to your data sources
+
+**Prediction Workers (optional, profile-gated):**
+- **XGBoost** (port 8401): Tabular classification and regression
+- **LightGBM** (port 8402): Fast tabular predictions for large datasets
+- **AutoGluon** (port 8403): Time-series forecasting (ARIMA + ETS + Theta ensemble)
+
+```bash
+# Start with prediction workers
+docker compose --profile local --profile predictions up -d
+
+# Add time-series forecasting
+docker compose --profile local --profile predictions-timeseries up -d
+```
 
 ---
 

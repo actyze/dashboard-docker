@@ -1,6 +1,26 @@
-# Actyze - Local Deployment with Docker Compose
+# Actyze — Docker Compose Deployment
 
-Run Actyze on your local machine using Docker Compose. Perfect for evaluation, testing, and local deployments.
+Run [Actyze](https://github.com/actyze/dashboard) on your local machine or a single host using Docker Compose. Perfect for evaluation, testing, and small production deployments.
+
+[![License: AGPL v3](https://img.shields.io/github/license/actyze/dashboard-docker)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/actyze/dashboard-docker?style=social)](https://github.com/actyze/dashboard-docker/stargazers)
+[![Latest Release](https://img.shields.io/github/v/release/actyze/dashboard-docker?display_name=tag&include_prereleases)](https://github.com/actyze/dashboard-docker/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/actyze/dashboard-nexus?label=nexus%20pulls)](https://hub.docker.com/u/actyze)
+[![Docker Compose](https://img.shields.io/badge/docker--compose-2.0%2B-blue?logo=docker)](https://docs.docker.com/compose/)
+
+[Main repo](https://github.com/actyze/dashboard) · [Helm charts](https://github.com/actyze/helm-charts) · [Documentation](https://docs.actyze.io) · [Website](https://actyze.ai)
+
+---
+
+## Who this is for
+
+Actyze is built for three teams:
+
+- **Teams already running Trino.** The AI/BI layer your federation has been missing — natural-language queries, dashboards, and ML predictions on top of the catalogs you already have.
+- **Metabase or Superset users.** Add NL queries and no-code ML predictions without ripping out your stack.
+- **Cortex / Genie escapees.** Same AI capabilities — text-to-SQL, semantic understanding, predictions — on your own infrastructure, no per-credit pricing, no vendor lock-in.
+
+AGPL v3, fully self-hosted, your data never leaves your network.
 
 ---
 
@@ -507,10 +527,11 @@ SCHEMA_SERVICE_VERSION=local
 
 ---
 
+## Related Repositories
+
+- **[actyze/dashboard](https://github.com/actyze/dashboard)** — primary monorepo (frontend, Nexus API, schema service, source of all images used here)
+- **[actyze/helm-charts](https://github.com/actyze/helm-charts)** — production Helm charts for Kubernetes deployments
+
 ## License
 
-This project is licensed under [AGPL-3.0-or-later](./LICENSE).
-
----
-
-**Run Actyze locally. Query your data with natural language. Get insights instantly.**
+[AGPL-3.0-or-later](./LICENSE)
